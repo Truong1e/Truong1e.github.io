@@ -12,21 +12,21 @@
     <title>Resource Cleanup :: AWS System Manager</title>
 
     
-    <link href="../css/nucleus.css?1733666154" rel="stylesheet">
-    <link href="../css/fontawesome-all.min.css?1733666154" rel="stylesheet">
-    <link href="../css/hybrid.css?1733666154" rel="stylesheet">
-    <link href="../css/featherlight.min.css?1733666154" rel="stylesheet">
-    <link href="../css/perfect-scrollbar.min.css?1733666154" rel="stylesheet">
-    <link href="../css/auto-complete.css?1733666154" rel="stylesheet">
-    <link href="../css/atom-one-dark-reasonable.css?1733666154" rel="stylesheet">
-    <link href="../css/theme.css?1733666154" rel="stylesheet">
-    <link href="../css/hugo-theme.css?1733666154" rel="stylesheet">
+    <link href="../css/nucleus.css?1733667755" rel="stylesheet">
+    <link href="../css/fontawesome-all.min.css?1733667755" rel="stylesheet">
+    <link href="../css/hybrid.css?1733667755" rel="stylesheet">
+    <link href="../css/featherlight.min.css?1733667755" rel="stylesheet">
+    <link href="../css/perfect-scrollbar.min.css?1733667755" rel="stylesheet">
+    <link href="../css/auto-complete.css?1733667755" rel="stylesheet">
+    <link href="../css/atom-one-dark-reasonable.css?1733667755" rel="stylesheet">
+    <link href="../css/theme.css?1733667755" rel="stylesheet">
+    <link href="../css/hugo-theme.css?1733667755" rel="stylesheet">
     
-    <link href="../css/theme-workshop.css?1733666154" rel="stylesheet">
+    <link href="../css/theme-workshop.css?1733667755" rel="stylesheet">
     
     
 
-    <script src="../js/jquery-3.3.1.min.js?1733666154"></script>
+    <script src="../js/jquery-3.3.1.min.js?1733667755"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -57,14 +57,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="../js/lunr.min.js?1733666154"></script>
-<script type="text/javascript" src="../js/auto-complete.js?1733666154"></script>
+<script type="text/javascript" src="../js/lunr.min.js?1733667755"></script>
+<script type="text/javascript" src="../js/auto-complete.js?1733667755"></script>
 <script type="text/javascript">
     
         var baseurl = "\/";
     
 </script>
-<script type="text/javascript" src="../js/search.js?1733666154"></script>
+<script type="text/javascript" src="../js/search.js?1733667755"></script>
 
     
   </div>
@@ -871,7 +871,7 @@
 <li>Click <strong>Instance state</strong>.</li>
 <li>Click <strong>Terminate instance</strong>, then click <strong>Terminate</strong> to confirm.</li>
 </ul>
-<p><img alt="Clean" src="../images/7./cleanec2-01.png"></p>
+<p><img alt="Clean" src="../images/7/cleanec2-01.png"></p>
 <ol start="2">
 <li>At Security Group</li>
 </ol>
@@ -879,7 +879,7 @@
 <li>Click the created Security Goup</li>
 <li>Click <strong>Action</strong></li>
 <li>Click <strong>Delete security goup</strong>
-<img alt="Clean" src="../images/7./cleanscg-01.png"></li>
+<img alt="Clean" src="../images/7/cleanscg-01.png"></li>
 </ul>
 <h4 id="delete-vpc">Delete VPC</h4>
 <ol>
@@ -890,12 +890,12 @@
 <li>Click to select <strong>ec2gd</strong>.</li>
 <li>Click <strong>Actions</strong>.</li>
 <li>Click <strong>Delete VPC</strong>.
-<img alt="Clean" src="../images/7./cleanevpc-01.png"></li>
+<img alt="Clean" src="../images/7/cleanevpc-01.png"></li>
 </ul>
 <ol start="2">
 <li>In the confirm box, enter <strong>delete</strong> to confirm, click <strong>Delete</strong> to delete <strong>ec2gd</strong> and related resources.</li>
 </ol>
-<p><img alt="Clean" src="../images/7./cleanevpc-02.png"></p>
+<p><img alt="Clean" src="../images/7/cleanevpc-02.png"></p>
 <ol start="3">
 <li>Select Subnets</li>
 </ol>
@@ -905,12 +905,12 @@
 </li>
 <li>
 <p>Click <strong>Delete Subnet</strong>,
-<img alt="Clean" src="../images/7./cleansub-01.png"></p>
+<img alt="Clean" src="../images/7/cleansub-01.png"></p>
 </li>
 </ul>
 <ol start="4">
 <li>In the confirm box, enter <strong>delete</strong> to confirm, click <strong>Delete</strong> to delete the 2 subnets.
-<img alt="Clean" src="../images/7./cleansub-02.png"></li>
+<img alt="Clean" src="../images/7/cleansub-02.png"></li>
 </ol>
 <h4 id="delete-guardduty">Delete GuardDuty</h4>
 <ol>
@@ -924,7 +924,7 @@
 <p>Click <strong>Disable</strong>, then click <strong>Disable</strong> to confirm.</p>
 </li>
 </ul>
-<p><img alt="Clean" src="../images/7./cleaneguardduty-01.png"></p>
+<p><img alt="Clean" src="../images/7/cleaneguardduty-01.png"></p>
 <h4 id="delete-s3-bucket">Delete S3 bucket</h4>
 <ol>
 <li>Access <a href="https://s3.console.aws.amazon.com/s3/home">S3 service management interface</a></li>
@@ -938,11 +938,11 @@
 <ol start="2">
 <li>After deleting all the objects in the bucket, click <strong>Delete</strong></li>
 </ol>
-<p><img alt="Clean" src="../images/7./cleans3-01.png"></p>
+<p><img alt="Clean" src="../images/7/cleans3-01.png"></p>
 <ol start="3">
 <li>Enter the S3 bucket name, then click <strong>Delete bucket</strong> to delete the S3 bucket.</li>
 </ol>
-<p><img alt="Clean" src="../images/7./cleans3-03.png"></p>
+<p><img alt="Clean" src="../images/7/cleans3-03.png"></p>
 <h4 id="delete-lambda">Delete Lambda</h4>
 <ol>
 <li>Access the <a href="https://console.aws.amazon.com/lambda/home">Lambda service management interface</a></li>
@@ -950,11 +950,11 @@
 <ul>
 <li>Click <strong>Functions</strong></li>
 <li>Click the created Functions, then click <strong>Delete</strong>.
-<img alt="Clean" src="../images/7./cleanlambda-01.png"></li>
+<img alt="Clean" src="../images/7/cleanlambda-01.png"></li>
 </ul>
 <ol start="2">
 <li>In the confirm box, enter <strong>delete</strong> to confirm, click <strong>Delete</strong> to delete.
-<img alt="Clean" src="../images/7./cleanlambda-02.png"></li>
+<img alt="Clean" src="../images/7/cleanlambda-02.png"></li>
 </ol>
 <h4 id="delete-sns-topic">Delete SNS Topic</h4>
 <ol>
@@ -963,11 +963,11 @@
 <ul>
 <li>Click <strong>Topics</strong></li>
 <li>Click the created topic, then click <strong>Delete</strong>.
-<img alt="Clean" src="../images/7./cleanesns-01.png"></li>
+<img alt="Clean" src="../images/7/cleanesns-01.png"></li>
 </ul>
 <ol start="2">
 <li>In the confirm box, enter <strong>delete me</strong> to confirm, click <strong>Delete</strong> to delete.
-<img alt="Clean" src="../images/7./cleanesns-02.png"></li>
+<img alt="Clean" src="../images/7/cleanesns-02.png"></li>
 </ol>
 <h4 id="delete-eventbridge">Delete Eventbridge</h4>
 <ol>
@@ -976,11 +976,11 @@
 <ul>
 <li>Click <strong>Rules</strong></li>
 <li>Click to select the 2 rulers created, then click <strong>Delete</strong>.
-<img alt="Clean" src="../images/7./cleanebridge-01.png"></li>
+<img alt="Clean" src="../images/7/cleanebridge-01.png"></li>
 </ul>
 <ol start="2">
 <li>In the confirm box, enter <strong>delete me</strong> to confirm, click <strong>Delete</strong> to delete.
-<img alt="Clean" src="../images/7./cleanebridge-02.png"></li>
+<img alt="Clean" src="../images/7/cleanebridge-02.png"></li>
 </ol>
 <p>So you have deleted completely</p>
 
@@ -1374,19 +1374,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="../js/clipboard.min.js?1733666154"></script>
-    <script src="../js/perfect-scrollbar.min.js?1733666154"></script>
-    <script src="../js/perfect-scrollbar.jquery.min.js?1733666154"></script>
-    <script src="../js/jquery.sticky.js?1733666154"></script>
-    <script src="../js/featherlight.min.js?1733666154"></script>
-    <script src="../js/highlight.pack.js?1733666154"></script>
+    <script src="../js/clipboard.min.js?1733667755"></script>
+    <script src="../js/perfect-scrollbar.min.js?1733667755"></script>
+    <script src="../js/perfect-scrollbar.jquery.min.js?1733667755"></script>
+    <script src="../js/jquery.sticky.js?1733667755"></script>
+    <script src="../js/featherlight.min.js?1733667755"></script>
+    <script src="../js/highlight.pack.js?1733667755"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="../js/modernizr.custom-3.6.0.js?1733666154"></script>
-    <script src="../js/learn.js?1733666154"></script>
-    <script src="../js/hugo-learn.js?1733666154"></script>
+    <script src="../js/modernizr.custom-3.6.0.js?1733667755"></script>
+    <script src="../js/learn.js?1733667755"></script>
+    <script src="../js/hugo-learn.js?1733667755"></script>
 
-    <link href="../mermaid/mermaid.css?1733666154" rel="stylesheet" />
-    <script src="../mermaid/mermaid.js?1733666154"></script>
+    <link href="../mermaid/mermaid.css?1733667755" rel="stylesheet" />
+    <script src="../mermaid/mermaid.js?1733667755"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

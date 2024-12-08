@@ -1,0 +1,162 @@
+[
+{
+	"uri": "/vi/2-prerequisites/2.1-createec2/",
+	"title": "Chuẩn bị VPC và EC2",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ cần tạo một VPC có 2 subnet public. Sau đó tạo 2 EC2 Instance Linux nằm trong public subnet.\nTổng quan kiến trúc sau khi các bạn hoàn tất bước này sẽ như sau:\nĐể tìm hiểu cách tạo các EC2 instance và VPC với subnet các bạn có thể tham khảo bài lab :\nGiới thiệu về Amazon EC2 Làm việc với Amazon VPC Nội dung Tạo VPC Tạo Subnet 01 Tạo Subnet 02 Tạo security group Tạo Hacker EC2 Tạo User EC2 "
+},
+{
+	"uri": "/vi/1-introduction/",
+	"title": "Giới thiệu",
+	"tags": [],
+	"description": "",
+	"content": "Mục tiêu Trong thời đại hiện nay, các mối đe dọa bảo mật đối với cơ sở hạ tầng đám mây đang ngày càng trở nên phổ biến và phức tạp. Hệ thống này được thiết kế để tự động phát hiện, phản ứng và thông báo về các hành vi đáng ngờ trên máy chủ EC2, giúp giảm thiểu rủi ro bảo mật.\nTổng quan về hệ thống Hệ thống tận dụng các dịch vụ AWS như:\nAmazon GuardDuty: Phát hiện các hành vi đáng ngờ trên máy chủ EC2. AWS EventBridge: Định tuyến sự kiện và kích hoạt các hành động tự động. AWS Lambda: Thực hiện các phản ứng như tạm dừng EC2 hoặc cô lập tài nguyên. Amazon SNS: Gửi thông báo chi tiết đến quản trị viên qua email hoặc SMS. Các dịch vụ này hoạt động phối hợp để phát hiện, xử lý và thông báo nhanh chóng khi có mối đe dọa.\nCác trường hợp sử dụng Phát hiện và xử lý các cuộc tấn công dò quét cổng (Port Scan). Gửi thông báo ngay lập tức đến quản trị viên khi có sự cố bảo mật. Thực hiện các phản ứng như tạm dừng hoặc cô lập tài nguyên EC2 khi phát hiện rủi ro. Hệ thống không chỉ tự động hóa việc giám sát mà còn cung cấp khả năng phản ứng nhanh chóng để bảo vệ tài nguyên đám mây.\n"
+},
+{
+	"uri": "/vi/3-guarduty/3.1-enable_guarduty/",
+	"title": "Kích hoạt AWS GuardDuty ",
+	"tags": [],
+	"description": "",
+	"content": "Amazon GuardDuty là một dịch vụ phát hiện mối đe dọa được AWS cung cấp, giúp bảo vệ tài khoản, dữ liệu và khối lượng công việc của bạn bằng cách phân tích các nguồn dữ liệu như CloudTrail, DNS Logs và VPC Flow Logs. Dịch vụ này sử dụng trí tuệ nhân tạo và nguồn dữ liệu tình báo để phát hiện hoạt động bất thường hoặc mối đe dọa tiềm ẩn. Với khả năng tự động hóa, dễ triển khai và tích hợp với các dịch vụ như Lambda hoặc SNS, GuardDuty giúp bạn nhanh chóng nhận diện và phản ứng trước các rủi ro bảo mật, đảm bảo hệ thống của bạn luôn an toàn. Trong phần này, chúng ta sẽ kích hoạt GuardDuty và cấu hình các thành phần cần thiết để theo dõi và xử lý các sự kiện đáng ngờ.\nBật GuardDuty Truy cập giao diện AWS GuardDuty Click Get started. Đọc các điều khoản và Click Get started. Account mới thì AWS sẽ cho dùng thử 30 ngày nha\n"
+},
+{
+	"uri": "/vi/4-lambda/4.1-create_lambda/",
+	"title": "Tạo Hàm Lambda",
+	"tags": [],
+	"description": "",
+	"content": "Để AWS Lambda có thể thực hiện các tác vụ cần thiết như xử lý sự kiện từ GuardDuty và gửi thông báo qua SNS, chúng ta cần đảm bảo rằng Lambda được cài đặt phù hợp.\nTạo hàm Lambda Truy cập vào giao diện quản trị dịch vụ Lambda Click Functions. Click Crate Functions. Tại trang Create function Để Nguyên Author form scratch. Tại Function name điền guardutylambda Ở đây mình dùng python nên chọn Python 3.13 Tạo xong ta cuộn chuột xuống phần code. Điền đoạn code này vào {\rimport boto3\rfrom botocore.exceptions import ClientError\rdef lambda_handler(event, context):\rec2 = boto3.client(\u0026#39;ec2\u0026#39;)\r# Kiểm tra và lấy Instance ID từ sự kiện GuardDuty\rtry:\r# Lấy Instance ID từ sự kiện\rinstance_id = event[\u0026#39;detail\u0026#39;][\u0026#39;resource\u0026#39;][\u0026#39;instanceDetails\u0026#39;][\u0026#39;instanceId\u0026#39;]\rif instance_id:\rprint(f\u0026#34;Stopping EC2 instance with ID: {instance_id}\u0026#34;)\r# Dừng EC2 instance\rresponse = ec2.stop_instances(InstanceIds=[instance_id])\rprint(f\u0026#34;Response from EC2 stop_instances: {response}\u0026#34;)\rreturn {\r\u0026#34;status\u0026#34;: \u0026#34;success\u0026#34;,\r\u0026#34;message\u0026#34;: f\u0026#34;Instance {instance_id} is stopping.\u0026#34;\r}\relse:\rprint(\u0026#34;Instance ID not found in the event.\u0026#34;)\rreturn {\r\u0026#34;status\u0026#34;: \u0026#34;error\u0026#34;,\r\u0026#34;message\u0026#34;: \u0026#34;Instance ID not found in the event.\u0026#34;\r}\rexcept KeyError as e:\rprint(f\u0026#34;Error parsing event data: {e}\u0026#34;)\rreturn {\r\u0026#34;status\u0026#34;: \u0026#34;error\u0026#34;,\r\u0026#34;message\u0026#34;: f\u0026#34;Error parsing event data: {e}\u0026#34;\r}\rexcept ClientError as e:\rprint(f\u0026#34;Error stopping instance: {e}\u0026#34;)\rreturn {\r\u0026#34;status\u0026#34;: \u0026#34;error\u0026#34;,\r\u0026#34;message\u0026#34;: f\u0026#34;Error stopping instance: {str(e)}\u0026#34;\r}\r} Click Deploy. Nhớ click Deploy không là code không chạy được đâu\nTại Configuration phần General configuration Click Edit Tại Timeout ta chỉnh lên 15s rồi Click Save Cũng tại Configuration Chọn mục Permissions Chọn guardutylambda-role-3p7dm8j8 để cấp quyền cho Lambda Tại Permissons policies Click Add Permissions Click Attach policies Tại Other permissions policies tại seach ec2 tích vào AmazonEC2FullAccess Tiếp theo chúng ta sẽ tiến hành tạo Eventbridge Ruler để kết nối từ GuardDuty đến Lambda.\n"
+},
+{
+	"uri": "/vi/5-sns-notifications/5.1-configure_sns_topic/",
+	"title": "Tạo SNS Topic",
+	"tags": [],
+	"description": "",
+	"content": "Để có thể nhận được tin nhắn của Guarduty cảnh báo ta cần tạo SNS Topic.\nTạo SNS Topic Truy cập vào giao diện quản trị dịch vụ SNS Điền Topic name guardutytopic. Click Next step. Click Standard. Điền name là guardutytopic Tại Access policy click Basic Tại Publisher Chọn Everyone. Tại Subscribers Chọn Everyone Tạo thành công rồi thì vào topic vừa tạo Click Create subscription Trong mục Create subscription Chọn Email tại Protocol Phần Endpoint điền mail của bạn Click Create subscription để tạo Mở mail của bạn sẽ thấy tin nhắn của AWS và chỉ cần bấm Confirm subscription Hiện thị bảng dưới đây là bạn đã hoàn xác nhận email Tiếp theo chúng ta sẽ tiến hành Tạo Eventbridge Ruler nối GuardDuty đến SNS.\n"
+},
+{
+	"uri": "/vi/2-prerequisites/2.1-createec2/2.1.1-createvpc/",
+	"title": "Tạo VPC ",
+	"tags": [],
+	"description": "",
+	"content": "Tạo VPC ec2gd Truy cập giao diện quản trị dịch vụ VPC Click Your VPC. Click Create VPC. Tại trang Create VPC. Tại mục Name tag điền ec2gd. Tại mục IPv4 CIDR điền : 10.10.0.0/16. Click Create VPC. "
+},
+{
+	"uri": "/vi/",
+	"title": "Threat Remediation Using GuardDuty and Protecting EC2 Instances",
+	"tags": [],
+	"description": "",
+	"content": "Khắc phục mối đe dọa bằng GuardDuty và bảo vệ máy chủ EC2 Tổng quan Trong bài lab này, bạn sẽ tìm hiểu các khái niệm cơ bản và thực hành về cách phát hiện và phản ứng với các mối đe dọa bảo mật trên máy chủ EC2 bằng cách sử dụng Amazon GuardDuty, EventBridge, và AWS Lambda.\nNội dung Giới thiệu Các bước chuẩn bị Phát hiện mối đe dọa với GuardDuty Tự động phản ứng với AWS Lambda Gửi thông báo với SNS Topcic Demo và Kiểm Thử Dọn dẹp tài nguyên "
+},
+{
+	"uri": "/vi/2-prerequisites/",
+	"title": "Chuẩn bị hệ thống",
+	"tags": [],
+	"description": "",
+	"content": "\rBạn cần tạo 2 instance Linux trên subnet công cộng để thực hiện bài lab này.\nĐể học cách tạo các instance EC2 và VPC với các subnet công cộng, bạn có thể tham khảo các tài liệu sau:\nVề Amazon EC2 Sử dụng Amazon VPC Trong phần này, chúng ta sẽ thiết lập các bước chuẩn bị để triển khai giải pháp bảo mật trên EC2 sử dụng GuardDuty.Chúng ta sẽ tạo một máy chủ EC2 tên là máy hacker-ec2 để lấy ip là ip đáng ngờ, và một máy khác tên là máy user-ec2 sẽ cố gắng liên hệ đến ip đáng ngờ đó, và quét cổng ip đáng ngờ đấy xem có cổng nào vào được không\nNội dung Tạo VPC và EC2 "
+},
+{
+	"uri": "/vi/3-guarduty/3.2-creates3/",
+	"title": "Khởi Tạo S3 Bucket",
+	"tags": [],
+	"description": "",
+	"content": "Amazon S3 (Simple Storage Service) là dịch vụ lưu trữ đối tượng phổ biến của AWS, cho phép bạn lưu trữ và truy cập dữ liệu một cách linh hoạt, an toàn và có khả năng mở rộng cao. S3 hỗ trợ nhiều trường hợp sử dụng, từ lưu trữ dữ liệu sao lưu, nhật ký ứng dụng đến hosting nội dung tĩnh cho website. Với các tính năng như mã hóa dữ liệu, quản lý quyền truy cập và tích hợp với các dịch vụ khác như Lambda hoặc GuardDuty, S3 đảm bảo an toàn và khả năng truy xuất dữ liệu dễ dàng. Trong phần này, chúng ta sẽ tạo một bucket S3 để lưu trữ dữ liệu quan trọng, đồng thời hỗ trợ các quy trình giám sát và phản ứng sự cố.\nTạo S3 Bucket Truy cập giao diện AWS S3 Click Create Bucket. Tại trang General configuration Kiểm tra Khu vực đồng nhất là Asia Pacific (Singapore) Điền Bucket Name là guardutys3test01 Các thông tin để mặc định và chọn Create Sau khi tạo S3 bucket rồi thì bạn quay lại Phần EC2 instance hacker-ec2 để lấy ip rồi tạo 1 file note tên là hacker.txt điền vào trong như hình IP này chỉ mang tính chất làm mẫu bạn có thể lấy bất kì ip nào cũng được nếu máy EC2 user-ec2 ping được đến nó và quét được cổng, và nhớ điền nó vào file plantex nha\nQuay Lại S3 Bucket bạn vừa tạo ở bước 2 Chọn upload Tại giao diện Upload Chọn Add files Up lên file hacker.txt bạn đã tạo ở bước 3 Sau khi upload thành công thì ta ấn vào file Tại giao diện của file hacket.txt Copy S3 URL hoặc Click Copy S3 URL Ta trở lại Giao diện GuardDuty Click List Click Add a threat IP list Tại giao diện Add a threat IP list Tại List name điền threadip Tại Location điền S3Url mà ta đã copy từ bước 7 Tại Format chọn Plaintext Tạo xong thì chúng ta nhớ Activate Hiển thị thế này là thành công "
+},
+{
+	"uri": "/vi/4-lambda/4.2-create_eventbridge_rule/",
+	"title": "Tạo Eventbridge Ruler nối GuardDuty đến Lambda",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ tạo 1 Ruler trong Eventbridge nối GuardDuty đến Lambda\nTạo Ruler Truy cập giao diện quản trị dịch vụ Eventbridge Click Create rule. Tại trang Define rule deail. Tại mục Name điền tên rule guarddutylambda Click Next Cuộn chuột xuống mục Method. Chọn Custom pattern Tại mục Event pattern điền code {\r\u0026#34;source\u0026#34;: [\u0026#34;aws.guardduty\u0026#34;],\r\u0026#34;detail\u0026#34;: {\r\u0026#34;type\u0026#34;: [\u0026#34;Recon:EC2/Portscan\u0026#34;]\r}\r} Click Next Tại mục Seclect target(s) trong Target 1 Chọn AWS service Trong Seclect a target ta chọn Lambda Function Trong Function ta chọn guardutylambda click Next Ta Click Next lần nữa rồi Click Create là hoàn thành "
+},
+{
+	"uri": "/vi/5-sns-notifications/5.2-create_eventbridge_rule/",
+	"title": "Tạo Eventbridge Ruler nối GuardDuty đến SNS",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ tạo 1 Ruler trong Eventbridge nối GuardDuty đến SNS\nTạo Ruler Truy cập giao diện quản trị dịch vụ Eventbridge Click Create rule. Tại trang Define rule deail. Tại mục Name điền tên rule guarddutysns Click Next Cuộn chuột xuống mục Method. Chọn Use pattern form\nTại mục Event pattern click AWS services\nChọn GuardDuty\nChọn GuardDuty Finding\nClick Next Tại mục Seclect target(s) trong Target 1 Chọn AWS service Trong Seclect a target ta chọn SNS topic Trong Topic ta chọn guardutytopic click Next Ta Click Next lần nữa rồi Click Create là hoàn thành "
+},
+{
+	"uri": "/vi/2-prerequisites/2.1-createec2/2.1.2-createsubnet01/",
+	"title": "Tạo Subnet 01",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Subnet Click Subnets. Click Create subnet. Tại trang Create subnet. Tại mục VPC ID click chọn ec2gd. Tại mục Subnet name điền subnet01. Tại mục Availability Zone chọn Availability zone như hình. Tại mục IPv4 subnet CIRD block điền 10.10.1.0/24. Kéo xuống cuối trang , click Create subnet.\nVào Your VPCs.\nClick Actions. Click Edit VPC settings. Click chọn như ảnh. Click Save. Click Internet Gateways. Click Create internet gateway. Tại trang Create internet gateway. Tại mục Name tag điền guarduty01. Click Create internet gateway. Sau khi tạo thành công, click Actions. Click Attach to VPC. Tại trang Attach to VPC. Tại mục Available VPCs chọn ec2gd. Click Attach internet gateway. Kiểm tra quá trình attach thành công như hình dưới. Tiếp theo chúng ta sẽ tạo một custom route table để gán vào subnet01. Click Route Tables. Click Create route table. Tại trang Create route table. Tại mục Name, điền guarduty01. Tại mục VPC, chọn ec2gd. Click Create route table. Sau khi tạo route table thành công. Click Edit routes. Tại trang Edit routes. Click Add route. Tại mục Destination điền 0.0.0.0/0 Tại mục Target chọn Internet Gateway sau đó chọn Lab IGW. Click Save changes. Click tab Subnet associations. Click Edit subnet associations để tiến hành associate custom routable chúng ta vừa tạo vào subnet01. Tại trang Edit subnet associations. Click chọn subnet01. Click Save associations. Kiểm tra thông tin route table đã được như hình dưới chưa. "
+},
+{
+	"uri": "/vi/3-guarduty/",
+	"title": "Phát hiện mối đe dọa với GuardDuty",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ thực hiện bật aws guarduty và tạo bucket s3 để lưu trữ địa chỉ ip giả lập là đáng ngờ\nNội dung 3.1. Bật GuardDuty 3.2. Tạo Buckets S3\n"
+},
+{
+	"uri": "/vi/2-prerequisites/2.1-createec2/2.1.3-createsubnet02/",
+	"title": "Tạo Subnet 02",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Private subnet Click Subnets. Click Create subnet. Tại trang Create subnet. Tại mục VPC ID click chọn ec2gd. Tại mục Subnet name điền subnet02. Tại mục Availability Zone chọn Availability zone như hình. Tại mục IPv4 subnet CIRD block điền 10.10.2.0/24. Kéo xuống cuối trang , click Create subnet.\nClick tab Subnet associations.\nClick Edit subnet associations để tiến hành associate custom routable chúng ta vừa tạo vào subnet02. Tại trang Edit subnet associations. Click chọn Subnet02. Click Save associations. Kiểm tra thông tin route table đã được như hình dưới chưa. Bước tiếp theo chúng ta sẽ tạo các security group cần thiết cho bài lab.\n"
+},
+{
+	"uri": "/vi/2-prerequisites/2.1-createec2/2.1.4-createsecgroup/",
+	"title": "Tạo các security group",
+	"tags": [],
+	"description": "",
+	"content": "Tạo các security group Trong bước này chúng ta sẽ tiến hành tạo các security group được sử dụng cho các instance của chúng ta.\nTạo security group cho EC2 instance Truy cập giao diện quản trị dịch vụ VPC Click Security Group. Click Create security group. Tại mục Security group name, điền Guardutyec2test. Tại mục Description, điền Guardutyec2test. Tại mục VPC, click dấu X để chọn lại ec2gd bạn đã tạo cho bài lab này. Tại mục Inbound rule chọn như hình dưới Giữ nguyên Outbound rule, kéo chuột xuống phía dưới. Click Create security group. Như vậy chúng ta đã tiến hành xong việc tạo các security group cần thiết cho các EC2 instance và VPC Endpoint.\n"
+},
+{
+	"uri": "/vi/4-lambda/",
+	"title": "Tự động phản ứng với AWS Lambda",
+	"tags": [],
+	"description": "",
+	"content": "AWS Lambda là một dịch vụ điện toán serverless cho phép bạn chạy mã mà không cần quản lý máy chủ. Với Lambda, bạn chỉ cần tập trung vào việc viết mã để xử lý các sự kiện, và AWS sẽ tự động lo việc mở rộng, phân phối tài nguyên và duy trì cơ sở hạ tầng. Lambda tích hợp dễ dàng với nhiều dịch vụ AWS khác như S3, DynamoDB, và EventBridge, giúp tự động hóa các phản ứng với sự kiện trong thời gian thực.\nTrong phần này, chúng ta sẽ triển khai Lambda để tự động hóa các hành động phản hồi khi phát hiện mối đe dọa, đảm bảo giải pháp bảo mật được thực thi một cách nhanh chóng và hiệu quả, kết nối từ Lambda đến GuardDuty bằng Even Bridge\nNội dung: Tạo Hàm Lambda Tạo và Kết nối Lambda đến GuardDuty "
+},
+{
+	"uri": "/vi/5-sns-notifications/",
+	"title": "Gửi thông báo với SNS Topcic",
+	"tags": [],
+	"description": "",
+	"content": "Amazon Simple Notification Service (SNS) là một dịch vụ tin nhắn đám mây mạnh mẽ của AWS, giúp gửi thông báo đến các hệ thống hoặc người dùng thông qua các kênh khác nhau như email, SMS, HTTP/HTTPS endpoints hoặc các dịch vụ khác. SNS hỗ trợ việc gửi thông báo theo thời gian thực, có khả năng mở rộng cao và dễ tích hợp với các dịch vụ AWS khác như Lambda và GuardDuty. SNS giúp tăng cường khả năng phản ứng nhanh chóng đối với các sự kiện quan trọng hoặc mối đe dọa tiềm ẩn, đảm bảo hệ thống luôn được theo dõi và bảo vệ.\nTrong phần này, chúng ta sẽ cấu hình SNS để nhận thông báo từ GuardDuty và tự động hóa việc phản hồi khi có sự kiện bảo mật.\nNội dung: Tạo SNS Topic Tạo và Kết nối SNS đến GuardDuty "
+},
+{
+	"uri": "/vi/2-prerequisites/2.1-createec2/2.1.5-create_hacker_ec2/",
+	"title": "Tạo Instances Hacker EC2",
+	"tags": [],
+	"description": "",
+	"content": "\rLưu Ý Máy Chủ Này Mình Chỉ Tạo Để Lấy IP\nTruy cập giao diện quản trị dịch vụ EC2 Click Instances. Click Launch instances. Tại Name and tags điền hacker-ec2 . Để Nguyên Các Lựa Chọn nếu bạn không có nhu cầu đặc biệt Tại trang Instancetyoe. Click chọn Instance type t2.micro. Click chọn ec2key.Nếu chưa có key pair thì click Create new key pair Mình tạo rồi nên có sẵn, ai chưa có thì tạo mới và nhớ lưu kĩ không là phải tạo instances mới với key mới đó\nTại trang Network setting Tại mục VPC chọn ec2d. Tại mục Subnet chọn subnet01. Tại mục Auto-assign Public IP chọn (Enable) Chọn Select an existing security group. Chọn security group Guardutyec2test. Click Launch instance. Tiếp theo chúng ta sẽ thực hiện tương tự để tạo 1 EC2 Instance Windows chạy trong Private subnet.\n"
+},
+{
+	"uri": "/vi/6-demo-testing/",
+	"title": "Demo và chạy thử",
+	"tags": [],
+	"description": "",
+	"content": "Mô hình demo triển khai giải pháp bảo mật AWS sử dụng GuardDuty, Lambda, SNS và EventBridge. Hai máy chủ EC2 được tạo, một máy hacker-ec2 với IP đáng ngờ và một máy user-ec2 quét cổng của máy hacker. Khi GuardDuty phát hiện mối đe dọa, EventBridge kích hoạt Lambda để thực hiện hành động tự động. SNS gửi thông báo cảnh báo đến người quản trị qua email, giúp theo dõi và phản ứng nhanh chóng với sự kiện bảo mật.\nKết nối máy EC2 Có nhiều cách kết nối EC2, các bạn có thể tham khảo kết nối EC2 bằng MobaXterm. Trong bài lab, chúng ta sử dụng GIT để kết nối EC2\nTruy cập vào trang EC2 Ta vào máy EC2 user-ec2 chọn connect Vào SSH client Copy mục số 2 và số 3 Vào thư mục Keypair mà bạn đã tải về lúc tạo máy EC2 ở mục số 3 Click chuột phải chọn Open Git Bash Here Dán vào những thứ đã copy từ SSH client ở mục 2 vào Gõ yes Hiển thị như hình 4 là đã ssh thành công Ta tiến hành ping thử đến ip của máy hacker-ec2 Điền code vi gd-postscan.sh 6. Điền tiếp code để tự post scan 10 lần ở ip máy hacker-ec2\nfor j in {1..10}\rdo sudo map -sT 52.77.229.28\rdone Điền :wq Ta điền lệnh sudo yum install -y nmap để cài đẩy đủ nmap, hiển thị Complete là thành công Chung ta sử dụng lệnh ./gd-postscan.sh Nếu báo lỗi thì cấp quyền cho file bằng lệnh chmod +x ./gd-postscan.sh Chạy lại lệnh ./gd-postscan.sh Hiện thị thế này là đang post scan thành công Kết Quả 10.Sau khi chờ khoảng một thời gian để GuarduDuty sẽ phát hiện ra như hình\nĐồng thời bạn cũng sẽ nhận được một mail như hình thể hiện đầy đủ các thông tin Thông tin: Version: \u0026ldquo;2.0\u0026rdquo; - Phiên bản định dạng GuardDuty finding. Detail type: \u0026ldquo;GuardDuty Finding\u0026rdquo; - Loại phát hiện từ GuardDuty. Source: \u0026ldquo;aws.guardduty\u0026rdquo; - Dịch vụ đã tạo ra thông báo. Time: \u0026ldquo;2024-12-03T14:00:00Z\u0026rdquo; - Thời gian phát hiện sự kiện. Region: \u0026ldquo;ap-southeast-1\u0026rdquo; - Khu vực nơi sự kiện xảy ra (Southeast Asia). Instance: ID: \u0026ldquo;i-0c9667b56b86b2b8c\u0026rdquo; Type: \u0026ldquo;t2.micro\u0026rdquo; Launch time: \u0026ldquo;2024-12-03T14:00:00Z\u0026rdquo; Private DNS name: \u0026ldquo;ip-10-0-234-90.ap-southeast-1.compute.internal\u0026rdquo; Public DNS name: \u0026ldquo;ec2-13-239-163-229.ap-southeast-1.compute.amazonaws.com\u0026rdquo; Public IP: \u0026ldquo;13.239.163.229\u0026rdquo; AMI ID: \u0026ldquo;ami-0935e2aed25ad7b6c\u0026rdquo; Image Description: \u0026ldquo;Amazon Linux 2023 AMI 2023.0.20230920.0\u0026rdquo; Type: \u0026ldquo;NETWORK_CONNECTION\u0026rdquo; Connection Direction: \u0026ldquo;OUTBOUND\u0026rdquo; IP Address: \u0026ldquo;52.77.229.28\u0026rdquo; - Địa chỉ IP bị nghi ngờ (đích đến). Organization: \u0026ldquo;AMAZON-AP\u0026rdquo; (Amazon Asia-Pacific Network). Port scanning activity: Các cổng bị quét: 5555, 6666, 888, 4883, 8733, 304, 8998, 1024, 42, 43, 375, 152.7000 Severity: 5 - Mức độ nghiêm trọng trung bình. Count: 1 - Số lần phát hiện. Description: \u0026ldquo;The EC2 instance \u0026hellip; is performing outbound port scans against remote host 52.77.229.28.\u0026rdquo; Và máy EC2 user-ec2 đã được tắt khi GuarDuty phá hiện ra hành vi khả nghi. Trong bài này, chúng ta thực hiện kiểm thử bằng cách quét cổng (port scan) để GuardDuty phát hiện và sử dụng Lambda tạm thời dừng máy EC2. Bạn cũng có thể thử các phương án khác như tấn công DDoS hoặc nhiều hình thức khác để kiểm tra khả năng phát hiện của GuardDuty cũng như sử dụng Lambda xử lý nhiều phướng án khác nhau.\n"
+},
+{
+	"uri": "/vi/2-prerequisites/2.1-createec2/2.1.6-create_user_ec2/",
+	"title": "Tạo Instances User EC2",
+	"tags": [],
+	"description": "",
+	"content": " Truy cập giao diện quản trị dịch vụ EC2 Click Instances. Click Launch instances. Tại Name and tags điền user-ec2 . Để Nguyên Các Lựa Chọn nếu bạn không có nhu cầu đặc biệt Tại trang Instancetyoe. Click chọn Instance type t2.micro. Click chọn ec2key.Nếu chưa có key pair thì click Create new key pair Tại trang Network setting Tại mục VPC chọn ec2d. Tại mục Subnet chọn subnet02. Tại mục Auto-assign Public IP chọn (Enable) Chọn Select an existing security group. Chọn security group Guardutyec2test. Click Launch instance. "
+},
+{
+	"uri": "/vi/7-cleanup/",
+	"title": "Dọn Dẹp Tài Nguyên",
+	"tags": [],
+	"description": "",
+	"content": "Chúng ta sẽ tiến hành các bước sau để xóa các tài nguyên chúng ta đã tạo trong bài thực hành này.\nXóa EC2 instance Truy cập giao diện quản trị dịch vụ EC2 Click Instances. Click chọn cả 2 instance hacker-ec2 và user-ec2. Click Instance state. Click Terminate instance, sau đó click Terminate để xác nhận. 2. Tại Security Group\nClick Security Goup đã tạo Click Action Click Delete security goup Xóa VPC Truy cập vào giao diện quản trị dịch vụ VPC Click Your VPCs. Click chọn ec2gd. Click Actions. Click Delete VPC. Tại ô confirm, điền delete để xác nhận, click Delete để thực hiện xóa ec2gd và các tài nguyên liên quan. Chọn Subnets Click chọn cả 2 subnet subnet01 và subnet02. Click Delete Subnet, Tại ô confirm, điền delete để xác nhận, click Delete để thực hiện xóa 2 subnet. Xoá GuardDuty Truy cập giao diện quản trị dịch vụ GuarDuty Click Setting Click Disable, sau đó click Disable để xác nhận. Xóa S3 bucket Truy cập giao diện quản trị dịch vụ S3 Click chọn S3 bucket chúng ta đã tạo cho bài thực hành. Click Empty. Điền permanently delete, sau đó click Empty để tiến hành xóa object trong bucket. Click Exit. Sau khi xóa hết object trong bucket, click Delete Điền tên S3 bucket, sau đó click Delete bucket để tiến hành xóa S3 bucket. Xoá Lambda Truy cập giao diện quản trị dịch vụ Lambda Click Functions Click chọn Functions đã tạo, sau đó click Delete. Tại ô confirm, điền delete để xác nhận, click Delete để thực hiện xóa. Xoá SNS Topic Truy cập giao diện quản trị dịch vụ SNS Click Topics Click topic đã tạo, sau đó click Delete. Tại ô confirm, điền delete me để xác nhận, click Delete để thực hiện xóa. Xoá Eventbridge Truy cập giao diện quản trị dịch vụ EventBridge Click Rules Click chọn 2 ruler đã tạo, sau đó click Delete. Tại ô confirm, điền delete me để xác nhận, click Delete để thực hiện xóa. Vậy là bạn đã xoá dầy đủ\n"
+},
+{
+	"uri": "/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
